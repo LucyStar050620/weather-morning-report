@@ -1,0 +1,32 @@
+name: 每日天气早报
+
+on:
+  schedule:
+    # UTC 22:00 = 北京时间次日 06:00
+    - cron: '0 22 * * *'
+  workflow_dispatch: {}      # 允许在 GitHub 网页手动触发测试
+
+permissions:
+  contents: read
+
+jobs:
+  weather:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 配置 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 安装依赖
+        run: pip install -r requirements.txt
+
+      - name: 生成并推送天气
+        env:
+          CITY: ${{ secrets.CITY }}                       # 可选，默认 郑州
+          SERVERCHAN_SENDKEY: ${{ secrets.SERVERCHAN_SENDKEY }}
+        run: python weather.py
