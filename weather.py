@@ -15,7 +15,7 @@ import datetime
 import requests
 
 # ---------------- 配置 ----------------
-CITY = os.environ.get("CITY", "郑州")
+CITY = os.environ.get("CITY") or "郑州"        # 空值也回退默认城市
 SENDKEY = os.environ.get("SERVERCHAN_SENDKEY", "")
 
 GEO_URL = "https://geocoding-api.open-meteo.com/v1/search"
@@ -181,10 +181,9 @@ def build_message(city, fc):
 
 
 def push_serverchan(sendkey, title, content):
-    url = "https://sctapi.ftqq.com/SEND"
-    r = requests.post(url, data={
-        "sendkey": sendkey, "title": title, "desp": content
-    }, timeout=15)
+    # Server酱 Turbo: SendKey 放在 URL 路径里, 不是参数
+    url = f"https://sctapi.ftqq.com/{sendkey}.send"
+    r = requests.post(url, data={"title": title, "desp": content}, timeout=15)
     return r.status_code, r.text
 
 
